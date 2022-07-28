@@ -106,22 +106,15 @@ async function selectOptions() {
               message: "Please enter the new department:",
             },
           ]);
-        //   db.query(`INSERT INTO department (dept_name)
-        //   VALUES ?`, 3, (err, result) => {
-        //     if (err) {
-        //       console.log(err);
-        //     }
-        //     console.log(`${newDept.dept_name} added to database.`);
-        //   });
-        db.query(`SET @variable = ${newDept.dept_name};
-        INSERT INTO table (column) VALUES (@variable);`,(err, result) => {
+
+          let newValue = newDept.dept_name;
+          db.query(`INSERT INTO department (dept_name)
+          VALUES (?)`, newValue, (err, result) => {
             if (err) {
               console.log(err);
             }
             console.log(`${newDept.dept_name} added to database.`);
           });
-          
-        
       break;
 
     case "Add a Role":
