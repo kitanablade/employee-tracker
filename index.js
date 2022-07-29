@@ -30,8 +30,8 @@ const db = mysql.createConnection(
 // *** Done: THEN I am presented with a formatted table showing employee data, including employee ids, first names, last names, job titles, departments, salaries, and managers that the employees report to
 // *** Done: WHEN I choose to add a department
 // *** Done: THEN I am prompted to enter the name of the department and that department is added to the database
-// WHEN I choose to add a role
-// THEN I am prompted to enter the name, salary, and department for the role and that role is added to the database
+// *** Done: WHEN I choose to add a role
+// *** Done: THEN I am prompted to enter the name, salary, and department for the role and that role is added to the database
 // WHEN I choose to add an employee
 // THEN I am prompted to enter the employee’s first name, last name, role, and manager, and that employee is added to the database
 // WHEN I choose to update an employee role
@@ -151,7 +151,6 @@ async function selectOptions() {
         },
       ]);
 
-      //let newValue = newDept.dept_name;
       db.query(
         `INSERT INTO role (title, salary, newRole.deptOptions)
           VALUES (?)`,
@@ -167,7 +166,44 @@ async function selectOptions() {
       );
       break;
 
+    //   first name, last name, role, and manager
     case "Add an Employee":
+        let newEmployee = await inquirer.prompt([
+            {
+              type: "input",
+              name: "first_name",
+              message: "Please enter new employee's first name:",
+            },
+            {
+              type: "input",
+              name: "last_name",
+              message: "Please enter the new employee's last name:",
+            },
+            // {
+            //     type: "list",
+            //     name: "title",
+            //     message: "Please select the department the new role belongs to:",
+            //     choices: ()=> [db.query(
+            //         `SELECT role.title AS name, role.id AS value
+            //         FROM role;
+            //         `),
+            //     ],
+            //   },
+        ]);
+
+          db.query(
+            `INSERT INTO employee (first_name, last_nanme)
+              VALUES (?)`,
+            newEmployee.first_name,
+            newEmployee.last_name,
+            //newRole.deptOptions,
+            (err, result) => {
+              if (err) {
+                console.log(err);
+              }
+              //console.log(`${newEmployee.first_name} ${newEmployee.last_name}added to database.`);
+            }
+          );
       break;
 
     case "Update an Employee Role":
@@ -175,32 +211,8 @@ async function selectOptions() {
 
     case "Quit":
       console.log("Have a nice day!");
-      exit == true;
+      break;
   }
-}
-// }
+};
 
 selectOptions();
-
-// Displays all columns in the table passed into the function
-let viewSelection = (tableName) => {
-  db.query(`SELECT * FROM ${tableName}`, function (err, results) {
-    if (err) {
-      console.log(err);
-    }
-    console.table(results);
-  });
-  //selectOptions();
-};
-
-const getDeptData = async () => {
-    db.query(`SELECT * FROM department`, function (err, results) {
-      if (err) {
-        console.log(err);
-      }
-      console.table(results);
-      selectOptions();
-    });
-    
-    //   .then(()=>selectOptions())
-};
