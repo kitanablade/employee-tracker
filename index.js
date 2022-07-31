@@ -168,42 +168,51 @@ async function selectOptions() {
 
     //   first name, last name, role, and manager
     case "Add an Employee":
-        let newEmployee = await inquirer.prompt([
-            {
-              type: "input",
-              name: "first_name",
-              message: "Please enter new employee's first name:",
-            },
-            {
-              type: "input",
-              name: "last_name",
-              message: "Please enter the new employee's last name:",
-            },
-            // {
-            //     type: "list",
-            //     name: "title",
-            //     message: "Please select the department the new role belongs to:",
-            //     choices: ()=> [db.query(
-            //         `SELECT role.title AS name, role.id AS value
-            //         FROM role;
-            //         `),
-            //     ],
-            //   },
-        ]);
-
-          db.query(
-            `INSERT INTO employee (first_name, last_nanme)
-              VALUES (?)`,
-            newEmployee.first_name,
-            newEmployee.last_name,
-            //newRole.deptOptions,
-            (err, result) => {
+        db.query(
+            `SELECT role.title AS name, role.id AS value
+            FROM role;
+            `,
+            function (err, results) {
               if (err) {
                 console.log(err);
               }
-              //console.log(`${newEmployee.first_name} ${newEmployee.last_name}added to database.`);
-            }
-          );
+              
+              console.log(results);
+              let newEmployee = inquirer.prompt([
+            //     //     {
+            //     //       type: "input",
+            //     //       name: "first_name",
+            //     //       message: "Please enter new employee's first name:",
+            //     //     },
+            //     //     {
+            //     //       type: "input",
+            //     //       name: "last_name",
+            //     //       message: "Please enter the new employee's last name:",
+            //     //     },
+                    {
+                        type: "list",
+                        name: "type",
+                        message: "Please select the department the new role belongs to:",
+                        choices: results,
+                      },
+                ]);
+            console.log(newEmployee);
+              });
+        
+
+        //   db.query(
+        //     `INSERT INTO employee (first_name, last_nanme)
+        //       VALUES (?)`,
+        //     newEmployee.first_name,
+        //     newEmployee.last_name,
+        //     //newRole.deptOptions,
+        //     (err, result) => {
+        //       if (err) {
+        //         console.log(err);
+        //       }
+        //       //console.log(`${newEmployee.first_name} ${newEmployee.last_name}added to database.`);
+        //     }
+        //   );
       break;
 
     case "Update an Employee Role":
