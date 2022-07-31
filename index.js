@@ -61,29 +61,36 @@ async function selectOptions() {
 
   switch (option.selectOptions) {
     case "View All Departments":
-        db.query(`SELECT * FROM department`, function (err, results) {
-            if (err) {
-              console.log(err);
-            }
-            console.table(results);
-            selectOptions();
-          });
-      
+      db.query(
+        `SELECT * FROM department ORDER BY dept_name DESC`,
+        function (err, results) {
+          if (err) {
+            console.log(err);
+          }
+          console.table(results);
+          console.log("================================================================");
+          selectOptions();
+        }
+      );
+
       break;
 
     case "View All Roles":
       db.query(
-        `SELECT role.id, role.title, role.salary, department.dept_name
+        `SELECT role.title, role.id, department.dept_name, role.salary
         FROM role
-        INNER JOIN department ON role.department_id=department.id;
+        INNER JOIN department ON role.department_id=department.id
+        ORDER BY role.title;
         `,
         function (err, results) {
           if (err) {
             console.log(err);
           }
           console.table(results);
+          console.log("================================================================");
           selectOptions();
-        });
+        }
+      );
 
       break;
 
@@ -100,119 +107,123 @@ async function selectOptions() {
             console.log(err);
           }
           console.table(results);
+          console.log("================================================================");
           selectOptions();
         }
       );
-
       break;
+
     case "Add a Department":
-      let newDept = inquirer.prompt([
+      inquirer.prompt([
         {
           type: "input",
           name: "dept_name",
           message: "Please enter the new department:",
         },
-      ]);
-
-      db.query(
-        `INSERT INTO department (dept_name)
-          VALUES (?)`,
-        newDept.dept_name,
-        (err, result) => {
-          if (err) {
-            console.log(err);
-          }
-          console.log(`${newDept.dept_name} added to database.`);
-        }
-      );
+      ]) .then((data) => {
+      let newDept = data.dept_name;
+      db.query(`INSERT INTO department (dept_name) VALUES (?)`, newDept, (err, result) => {
+            if (err) {
+              console.log(err);
+            }
+            console.log(`${newDept} added to database.`);
+            console.log("================================================================");
+            selectOptions();
+          });
+      });
       break;
 
     //   name, salary, and department for the role
     case "Add a Role":
-      let newRole = await inquirer.prompt([
-        {
-          type: "input",
-          name: "title",
-          message: "Please enter new role title:",
-        },
-        {
-          type: "input",
-          name: "salary",
-          message: "Please enter the new role salary:",
-        },
-        {
-          type: "list",
-          name: "deptOptions",
-          message: "Please select the department the new role belongs to:",
-          choices: [
-            // An array returned from a SQL query
-            // newRole.deptOptions;
-          ],
-        },
-      ]);
-
       db.query(
-        `INSERT INTO role (title, salary, newRole.deptOptions)
-          VALUES (?)`,
-        newRole.title,
-        newRole.salary,
-        newRole.deptOptions,
-        (err, result) => {
+        `SELECT dept_name AS name, id AS value
+            FROM department;
+            `,
+        function async (err, results) {
           if (err) {
             console.log(err);
           }
-          console.log(`${newRole.title} added to database.`);
+          let newRole = inquirer.prompt([
+            {
+              type: "input",
+              name: "title",
+              message: "Please enter new role title:",
+            },
+            {
+              type: "input",
+              name: "salary",
+              message: "Please enter the new role salary:",
+            },
+            {
+              type: "list",
+              name: "department_id",
+              message: "Please select the department the new role belongs to:",
+              choices: results,
+            },
+          ])
+          .then((newRole) => {
+          console.log(newRole);
+            db.query(
+                `SELECT * FROM department ORDER BY dept_name`,
+              (err, result) => {
+                if (err) {
+                  console.log(err);
+                }
+                console.log(result);
+              }
+            )});
         }
       );
+      //   );
+
       break;
 
     //   first name, last name, role, and manager
     case "Add an Employee":
-        db.query(
-            `SELECT role.title AS name, role.id AS value
+      db.query(
+        `SELECT role.title AS name, role.id AS value
             FROM role;
             `,
-            function (err, results) {
-              if (err) {
-                console.log(err);
-              }
-              
-              console.log(results);
-              let newEmployee = inquirer.prompt([
-            //     //     {
-            //     //       type: "input",
-            //     //       name: "first_name",
-            //     //       message: "Please enter new employee's first name:",
-            //     //     },
-            //     //     {
-            //     //       type: "input",
-            //     //       name: "last_name",
-            //     //       message: "Please enter the new employee's last name:",
-            //     //     },
-                    {
-                        type: "list",
-                        name: "type",
-                        message: "Please select the department the new role belongs to:",
-                        choices: results,
-                      },
-                ]);
-            console.log(newEmployee);
-              });
-        
+        function (err, results) {
+          if (err) {
+            console.log(err);
+          }
 
-        //   db.query(
-        //     `INSERT INTO employee (first_name, last_nanme)
-        //       VALUES (?)`,
-        //     newEmployee.first_name,
-        //     newEmployee.last_name,
-        //     //newRole.deptOptions,
-        //     (err, result) => {
-        //       if (err) {
-        //         console.log(err);
-        //       }
-        //       //console.log(`${newEmployee.first_name} ${newEmployee.last_name}added to database.`);
-        //     }
-        //   );
+          let newEmployee = inquirer.prompt([
+            {
+              type: "input",
+              name: "first_name",
+              message: "Please enter new employee's first name:",
+            },
+            {
+              type: "input",
+              name: "last_name",
+              message: "Please enter the new employee's last name:",
+            },
+            {
+              type: "list",
+              name: "type",
+              message: "Please select the department the new role belongs to:",
+              choices: results,
+            },
+          ]);
+          //console.log(newEmployee);
+        }
+      );
+
+      //   db.query(
+      //     `INSERT INTO employee (first_name, last_nanme)
+      //       VALUES (?)`,
+      //     newEmployee.first_name,
+      //     newEmployee.last_name,
+      //     //newRole.deptOptions,
+      //     (err, result) => {
+      //       if (err) {
+      //         console.log(err);
+      //       }
+      //       //console.log(`${newEmployee.first_name} ${newEmployee.last_name}added to database.`);
+      //     }
+      //   );
       break;
 
     case "Update an Employee Role":
@@ -222,6 +233,20 @@ async function selectOptions() {
       console.log("Have a nice day!");
       break;
   }
-};
+}
+
+//   db.query(
+          //     `INSERT INTO role (title, salary, department_id)
+          //   VALUES (?)`,
+          //     newRole.title,
+          //     newRole.salary,
+          //     newRole.departmet_id,
+          //     (err, result) => {
+          //       if (err) {
+          //         console.log(err);
+          //       }
+          //       //console.log(result);
+          //     }
+          //   );
 
 selectOptions();

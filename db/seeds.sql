@@ -16,3 +16,7 @@ VALUES ("Kit", "Williams", 3),
 ("Newt", "Ault", 2),
 ("Honu", "Bendixen", 1),
 ("Orville", "Zharoff", 4);
+
+SELECT * FROM department;
+SELECT * FROM role;
+SELECT * FROM employee;

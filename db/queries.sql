@@ -1,8 +1,12 @@
 USE employee_db;
 
--- SOURCE ./db/schema.sql;
--- SOURCE ./db/seeds.sql;
+SOURCE ./db/schema.sql;
+SOURCE ./db/seeds.sql;
 
-SELECT * FROM department;
-SELECT * FROM role;
-SELECT * FROM employee;
+-- SELECT * FROM department;
+-- SELECT * FROM role;
+-- SELECT * FROM employee;
+
+INSERT INTO department (dept_name)
+VALUES ("TEST QUESTION MARK");
+
