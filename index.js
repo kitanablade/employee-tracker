@@ -68,7 +68,9 @@ async function selectOptions() {
             console.log(err);
           }
           console.table(results);
-          console.log("================================================================");
+          console.log(
+            "================================================================"
+          );
           selectOptions();
         }
       );
@@ -87,7 +89,9 @@ async function selectOptions() {
             console.log(err);
           }
           console.table(results);
-          console.log("================================================================");
+          console.log(
+            "================================================================"
+          );
           selectOptions();
         }
       );
@@ -107,30 +111,40 @@ async function selectOptions() {
             console.log(err);
           }
           console.table(results);
-          console.log("================================================================");
+          console.log(
+            "================================================================"
+          );
           selectOptions();
         }
       );
       break;
 
     case "Add a Department":
-      inquirer.prompt([
-        {
-          type: "input",
-          name: "dept_name",
-          message: "Please enter the new department:",
-        },
-      ]) .then((data) => {
-      let newDept = data.dept_name;
-      db.query(`INSERT INTO department (dept_name) VALUES (?)`, newDept, (err, result) => {
-            if (err) {
-              console.log(err);
+      inquirer
+        .prompt([
+          {
+            type: "input",
+            name: "dept_name",
+            message: "Please enter the new department:",
+          },
+        ])
+        .then((data) => {
+          let newDept = data.dept_name;
+          db.query(
+            `INSERT INTO department (dept_name) VALUES (?)`,
+            newDept,
+            (err, result) => {
+              if (err) {
+                console.log(err);
+              }
+              console.log(`${newDept} added to database.`);
+              console.log(
+                "================================================================"
+              );
+              selectOptions();
             }
-            console.log(`${newDept} added to database.`);
-            console.log("================================================================");
-            selectOptions();
-          });
-      });
+          );
+        });
       break;
 
     //   name, salary, and department for the role
@@ -139,39 +153,52 @@ async function selectOptions() {
         `SELECT dept_name AS name, id AS value
             FROM department;
             `,
-        function async (err, results) {
+        function async(err, results) {
           if (err) {
             console.log(err);
           }
-          let newRole = inquirer.prompt([
-            {
-              type: "input",
-              name: "title",
-              message: "Please enter new role title:",
-            },
-            {
-              type: "input",
-              name: "salary",
-              message: "Please enter the new role salary:",
-            },
-            {
-              type: "list",
-              name: "department_id",
-              message: "Please select the department the new role belongs to:",
-              choices: results,
-            },
-          ])
-          .then((newRole) => {
-          console.log(newRole);
-            db.query(
-                `SELECT * FROM department ORDER BY dept_name`,
-              (err, result) => {
-                if (err) {
-                  console.log(err);
+          inquirer
+            .prompt([
+              {
+                type: "input",
+                name: "title",
+                message: "Please enter new role title:",
+              },
+              {
+                type: "input",
+                name: "salary",
+                message: "Please enter the new role salary:",
+              },
+              {
+                type: "list",
+                name: "department_id",
+                message:
+                  "Please select the department the new role belongs to:",
+                choices: results,
+              },
+            ])
+            .then((data) => {
+              let title = data.title;
+              let salary = data.salary;
+              let deptId = data.department_id;
+    //           query("INSERT INTO roles (title, salary, department_id) VALUES (?, ?, ?)",
+		// [role.roleName, role.roleSalary, role.roleDept]),
+              db.query(
+                `INSERT INTO role (title, salary, department_id) VALUES (?, ?, ?)`,
+                [title, salary, deptId],
+                (err, result) => {
+                  if (err) {
+                    console.log(err);
+                  }
+                  console.log(`${title} added to database.`);
+                  console.log(
+                    "================================================================"
+                  );
+                  console.log(data);
+                  selectOptions();
                 }
-                console.log(result);
-              }
-            )});
+              );
+            });
         }
       );
       //   );
@@ -236,17 +263,17 @@ async function selectOptions() {
 }
 
 //   db.query(
-          //     `INSERT INTO role (title, salary, department_id)
-          //   VALUES (?)`,
-          //     newRole.title,
-          //     newRole.salary,
-          //     newRole.departmet_id,
-          //     (err, result) => {
-          //       if (err) {
-          //         console.log(err);
-          //       }
-          //       //console.log(result);
-          //     }
-          //   );
+//     `INSERT INTO role (title, salary, department_id)
+//   VALUES (?)`,
+//     newRole.title,
+//     newRole.salary,
+//     newRole.departmet_id,
+//     (err, result) => {
+//       if (err) {
+//         console.log(err);
+//       }
+//       //console.log(result);
+//     }
+//   );
 
 selectOptions();
