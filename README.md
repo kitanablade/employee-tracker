@@ -10,7 +10,7 @@ I WANT to be able to view and manage the departments, roles, and employees in my
 SO THAT I can organize and plan my business
 ```
 ## Demo Video Link
-[Screencastify Video on Google Drive])
+[Screencastify Video on Google Drive]https://drive.google.com/file/d/1bd_poyP44JkMHvOae62dMw44phfXsA-5/view)
 
 ## Acceptnce Criteria
 ```md
