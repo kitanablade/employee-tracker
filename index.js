@@ -2,6 +2,9 @@ const express = require("express");
 const inquirer = require("inquirer");
 const mysql = require("mysql2");
 const cTable = require("console.table");
+//const util = require('util');
+const db = require("./db/connection.js");
+
 
 const PORT = process.env.PORT || 3001;
 const app = express();
@@ -9,15 +12,16 @@ const app = express();
 app.use(express.urlencoded({ extended: false }));
 app.use(express.json());
 
-const db = mysql.createConnection(
-  {
-    host: "localhost",
-    user: "root",
-    password: "password",
-    database: "employee_db",
-  },
-  console.log(`Connected to the employee_db database.`)
-);
+// const db = mysql.createConnection(
+//   {
+//     host: "localhost",
+//     user: "root",
+//     password: "password",
+//     database: "employee_db",
+//   },
+//   console.log(`Connected to the employee_db database.`)
+// );
+//const query = util.promisify(db.query).bind(db);
 
 // GIVEN a command-line application that accepts user input
 // WHEN I start the application
@@ -74,7 +78,6 @@ async function selectOptions() {
           selectOptions();
         }
       );
-
       break;
 
     case "View All Roles":
@@ -95,7 +98,6 @@ async function selectOptions() {
           selectOptions();
         }
       );
-
       break;
 
     case "View All Employees":
@@ -147,13 +149,12 @@ async function selectOptions() {
         });
       break;
 
-    //   name, salary, and department for the role
     case "Add a Role":
       db.query(
         `SELECT dept_name AS name, id AS value
             FROM department;
             `,
-        function async(err, results) {
+        function (err, results) {
           if (err) {
             console.log(err);
           }
@@ -181,8 +182,6 @@ async function selectOptions() {
               let title = data.title;
               let salary = data.salary;
               let deptId = data.department_id;
-    //           query("INSERT INTO roles (title, salary, department_id) VALUES (?, ?, ?)",
-		// [role.roleName, role.roleSalary, role.roleDept]),
               db.query(
                 `INSERT INTO role (title, salary, department_id) VALUES (?, ?, ?)`,
                 [title, salary, deptId],
@@ -201,56 +200,73 @@ async function selectOptions() {
             });
         }
       );
-      //   );
 
       break;
 
     //   first name, last name, role, and manager
     case "Add an Employee":
+      //const mgrResults = getManagers();
+      let newEmployeeInfo = {
+        first_name: "",
+        last_name: "",
+        employee_id: "",
+        manager_id: ""
+      }
+      //const mgrResults = ["bob","joe"];
+      const mgrOptions = getManagers();
       db.query(
         `SELECT role.title AS name, role.id AS value
             FROM role;
             `,
-        function (err, results) {
+        function (err, roleResults) {
           if (err) {
             console.log(err);
           }
 
-          let newEmployee = inquirer.prompt([
-            {
-              type: "input",
-              name: "first_name",
-              message: "Please enter new employee's first name:",
-            },
-            {
-              type: "input",
-              name: "last_name",
-              message: "Please enter the new employee's last name:",
-            },
-            {
-              type: "list",
-              name: "type",
-              message: "Please select the department the new role belongs to:",
-              choices: results,
-            },
-          ]);
-          //console.log(newEmployee);
+          let newEmployee = inquirer
+            .prompt([
+              {
+                type: "input",
+                name: "first_name",
+                message: "Please enter new employee's first name:",
+              },
+              {
+                type: "input",
+                name: "last_name",
+                message: "Please enter the new employee's last name:",
+              },
+              {
+                type: "list",
+                name: "type",
+                message: "Please select the employee's role:",
+                choices: roleResults,
+              },
+              {
+                type: "list",
+                name: "type",
+                message: "Please select the employee's manager (note, if the new employee is a manager, please leave blank):",
+                choices: mgrOptions,
+              },
+            ])
+            .then((data) => {
+              newEmployeeInfo.first_name = data.first_name
+              newEmployeeInfo.last_name = data.last_name
+              newEmployeeInfo.first_name = data.first_name
+              console.log(data);
+              
+            });
+            // .then(inquirer
+            // .prompt([
+            //   {
+            //     type: "list",
+            //     name: "manager_id",
+            //     message:
+            //       "Please select the manager of the new employee:",
+            //     choices: mgrOptions,
+            //   },
+            // ]))
         }
       );
-
-      //   db.query(
-      //     `INSERT INTO employee (first_name, last_nanme)
-      //       VALUES (?)`,
-      //     newEmployee.first_name,
-      //     newEmployee.last_name,
-      //     //newRole.deptOptions,
-      //     (err, result) => {
-      //       if (err) {
-      //         console.log(err);
-      //       }
-      //       //console.log(`${newEmployee.first_name} ${newEmployee.last_name}added to database.`);
-      //     }
-      //   );
       break;
 
     case "Update an Employee Role":
@@ -262,18 +278,36 @@ async function selectOptions() {
   }
 }
 
-//   db.query(
-//     `INSERT INTO role (title, salary, department_id)
-//   VALUES (?)`,
-//     newRole.title,
-//     newRole.salary,
-//     newRole.departmet_id,
-//     (err, result) => {
-//       if (err) {
-//         console.log(err);
-//       }
-//       //console.log(result);
-//     }
-//   );
+//can also delete callback function and just do return db.query
+function getManagers(){
+db.query(
+  `SELECT CONCAT(employee.first_name," ", employee.last_name) AS mgr_fullname, employee.id
+  FROM employee
+  JOIN role ON employee.role_id=role.id
+  WHERE title = "Manager"`,
+  function (err, mgrNames) {
+    if (err) {
+      console.log(err);
+    }
+    return mgrNames;
+  }
+);
+}
+
+// let newDept = data.dept_name;
+              // db.query(
+              //   `INSERT INTO department (dept_name) VALUES (?)`,
+              //   newDept,
+              //   (err, result) => {
+              //     if (err) {
+              //       console.log(err);
+              //     }
+              //     console.log(`${newDept} added to database.`);
+              //     console.log(
+              //       "================================================================"
+              //     );
+              //     selectOptions();
+              //   }
+              // );
 
 selectOptions();
