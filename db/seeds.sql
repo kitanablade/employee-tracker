@@ -13,8 +13,8 @@ VALUES ("Senior Engineer", 148000.00, 2),
 
 INSERT INTO employee (first_name, last_name, role_id)
 VALUES ("Kit", "Williams", 3),
-("Newt", "Ault", 2),
-("Honu", "Bendixen", 1),
+("Caleb", "Ault", 2),
+("Mason", "Bendixen", 1),
 ("Orville", "Zharoff", 4);
 
 SELECT * FROM department;
