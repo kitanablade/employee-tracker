@@ -203,6 +203,7 @@ async function selectOptions() {
             FROM role;
             `,
         function (err, roleResults) {
+          
           if (err) {
             console.log(err);
           }
@@ -220,15 +221,16 @@ async function selectOptions() {
               },
               {
                 type: "list",
-                name: "type",
+                name: "role_id",
                 message: "Please select the employee's role:",
                 choices: roleResults,
               },
             ])
             .then((data) => {
-              // newEmployeeInfo.first_name = data.first_name;
-              // newEmployeeInfo.last_name = data.last_name;
-              // newEmployeeInfo.first_name = data.first_name;
+              newEmployeeInfo.first_name = data.first_name;
+              newEmployeeInfo.last_name = data.last_name;
+              newEmployeeInfo.role_id = data.role_id;
+              newEmployeeInfo.manager_id = "";
               db.query(
                 `SELECT CONCAT(employee.first_name," ", employee.last_name) AS name, employee.id AS value
                 FROM employee
@@ -245,7 +247,23 @@ async function selectOptions() {
                       message: "Please select the manager of the new employee:",
                       choices: mgrNames,
                     },
-                  ]);
+                  ]).then((data)=>{
+                    newEmployeeInfo.manager_id = data.manager_id;
+                    db.query(
+                      `INSERT INTO employee (first_name, last_name, role_id, manager_id) VALUES (?,?,?,?)`,
+                      [newEmployeeInfo.first_name, newEmployeeInfo.last_name, newEmployeeInfo.role_id, newEmployeeInfo.manager_id],
+                      (err, result) => {
+                        if (err) {
+                          console.log(err);
+                        }
+                        console.log(`${newEmployeeInfo} added to database.`);
+                        console.log(
+                          "================================================================"
+                        );
+                        selectOptions();
+                      }
+                    );
+                  })
                 }
               );
             });
